@@ -6,8 +6,8 @@ import (
 )
 
 type ListElement[T any] struct {
-	Next  *ListElement[T]
-	Value T
+	Next *ListElement[T]
+	Data T
 }
 type List[T any] struct {
 	root ListElement[T]
@@ -20,7 +20,7 @@ func (l *List[T]) Len() int {
 
 func (l *List[T]) PushFront(value T) *ListElement[T] {
 	elem := ListElement[T]{
-		Value: value,
+		Data: value,
 	}
 	if l.len != 0 {
 		//change root to new element
@@ -33,7 +33,7 @@ func (l *List[T]) PushFront(value T) *ListElement[T] {
 }
 func (l *List[T]) PushBack(value T) *ListElement[T] {
 	elem := ListElement[T]{
-		Value: value,
+		Data: value,
 	}
 	if l.len == 0 {
 		l.root = elem
@@ -53,7 +53,7 @@ func (l *List[T]) PushBack(value T) *ListElement[T] {
 func (l *List[T]) FindFirst(predicate func(elem T) bool) *ListElement[T] {
 	node := &l.root
 	for {
-		if predicate(node.Value) {
+		if predicate(node.Data) {
 			return node
 		}
 		if node.Next == nil {
@@ -69,13 +69,13 @@ func NewListFromSlice[T any](slice []T) *List[T] {
 		return lst
 	}
 	lst.root = ListElement[T]{
-		Value: slice[0],
+		Data: slice[0],
 	}
 	lst.len = 1
 	curr := &lst.root
 	for _, val := range slice[1:] {
 		elem := &ListElement[T]{
-			Value: val,
+			Data: val,
 		}
 		curr.Next = elem
 		curr = elem
@@ -119,7 +119,7 @@ func (l *List[T]) String() string {
 	s := strings.Builder{}
 	node := &l.root
 	for {
-		s.WriteString(fmt.Sprintf("%v -> ", node.Value))
+		s.WriteString(fmt.Sprintf("%v -> ", node.Data))
 		if node.Next == nil {
 			s.WriteString("nil")
 			break
@@ -135,5 +135,5 @@ func main() {
 	l.PushBack(9)
 	println(l.len, l.String())
 	elem := l.FindFirst(func(elem int) bool { return elem == 5 })
-	println(elem.Value, elem.Next.Value)
+	println(elem.Data, elem.Next.Data)
 }
