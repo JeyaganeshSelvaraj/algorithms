@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -49,6 +50,23 @@ func (l *List[T]) PushBack(value T) *ListElement[T] {
 	}
 	l.len++
 	return &elem
+}
+func (l *List[T]) InsertAfter(pos int, elem *ListElement[T]) error {
+	curr := &l.root
+	if pos < 0 {
+		return errors.New("position must be non-negative")
+	}
+	for i := 0; i < pos; i++ {
+		if curr == nil {
+			break
+		}
+		curr = curr.Next
+	}
+	if curr == nil {
+		return fmt.Errorf("position is out of range")
+	}
+	curr.Next = elem
+	return nil
 }
 func (l *List[T]) FindFirst(predicate func(elem T) bool) *ListElement[T] {
 	node := &l.root
@@ -119,16 +137,47 @@ func (l *List[T]) String() string {
 	s := strings.Builder{}
 	node := &l.root
 	for {
-		s.WriteString(fmt.Sprintf("%v -> ", node.Data))
-		if node.Next == nil {
+		if node == nil {
 			s.WriteString("nil")
 			break
 		}
+		s.WriteString(fmt.Sprintf("%v -> ", node.Data))
 		node = node.Next
 	}
 	return s.String()
 }
-
+func (l *List[T]) FindMthToLastElement(m int) (*ListElement[T], error) {
+	curr := &l.root
+	mBehind := &l.root
+	for i := 0; i < m; i++ {
+		if curr.Next == nil {
+			return nil, fmt.Errorf("%d is out of list range", m)
+		}
+		curr = curr.Next
+	}
+	for curr.Next != nil {
+		mBehind = mBehind.Next
+		curr = curr.Next
+	}
+	return mBehind, nil
+}
+func (l *List[T]) IsCyclic() bool {
+	slow := &l.root
+	if slow == nil {
+		return false
+	}
+	fast := slow.Next
+	for {
+		if slow == nil || fast == nil || fast.Next == nil {
+			return false
+		} else if slow == fast || slow == fast.Next {
+			return true
+		} else {
+			slow = slow.Next
+			fast = fast.Next.Next
+		}
+	}
+}
 func main() {
 	l := NewListFromSlice([]int{1, 2, 3, 4, 5, 6, 7})
 	l.PushFront(0)
